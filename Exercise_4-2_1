@@ -1,0 +1,3 @@
+Caso existam mais que 255, basta resetar a variavel de de "labeling" quando atingir
+255 e manter armazenado quantas vezes a variavel fora resetada. Assim, para saber quantos objetos temos,
+bastaria fazer o 255*(numero de resets) + nobjects
