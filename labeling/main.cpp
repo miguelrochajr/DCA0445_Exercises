@@ -72,44 +72,28 @@ void white_edges(Mat image, int width, int height) //Makes the edges of the pict
 
 }
 
-void look4holes (Mat image, CvPoint& p, int object_label, int& column)
-{
-    int current_value = -1;
-    int i = p.y;
-
-    do                               //Now, look for holes on this line until we reach the other side of the object, which is the background (label 1).
-    {                                //Note that we will only increase the "j". So is a horizontal traverse.
-        current_value = image.at<uchar>(i,column);
-        //cout << "Current value: " << current_value << endl;
-        if(current_value == 0) //Found a hole in the object!
-        {
-            objects[object_label-2].flag_hole = 1; //The index for the object is indicated by its label-2.
-        }
-        column++;
-    }while(current_value != 1);
-}
 
 void look4objects (Mat image, int& labels)
 {
     CvPoint p;
-    uchar label;
+    int label;
 
     for(int i=0; i<image.size().height; i++)
     {
       for(int j=0; j<image.size().width; j++)
       {
-        label = image.at<uchar>(i,j);
-        cout << label << " ";
-        //label = image.at<uchar>(i,j);
-        //cout << label << endl;
-        /*
-        if(label>1 && label<= labels)  //Found a labled object!
-        {                               //Note that the Background is labled as 1. So we can't consider it as an object
-            //cout << "Calling look4holes with a pixel value of " << label << endl;
-            look4holes(image, p, label, j);
-        }*/
+          if( int(image.at<uchar>(i,j)) > 1 && int(image.at<uchar>(i,j)) <= labels) //Found a labled object!
+          {
+              label = int(image.at<uchar>(i,j)); //Save which is the label we have found.
+              do{
+                  j++; //look the next pixel
+                  if(int(image.at<uchar>(i,j))==0)
+                  {
+                      objects[label-2].flag_hole = 1; // if the pixel inside is a zero, this means we have a hole in the object labled with the value "label"
+                  }
+              }while(int(image.at<uchar>(i,j))!= 0 && j<image.size().width);
+          }
       }
-      cout << endl;
     }
 }
 
@@ -150,26 +134,10 @@ int main()
 
   Label(image, labels, &p); //Label the objects
 
-  //look4objects(image, labels);
+  look4objects(image, labels);
 
-  int label = -1;
-  for(int i=0; i<image.size().height; i++)
-  {
-    for(int j=0; j<image.size().width; j++)
-    {
-      if(label != 1)
-          cout << label << endl;
-      //label = image.at<uchar>(i,j);
-      //cout << label << endl;
-      /*
-      if(label>1 && label<= labels)  //Found a labled object!
-      {                               //Note that the Background is labled as 1. So we can't consider it as an object
-          //cout << "Calling look4holes with a pixel value of " << label << endl;
-          look4holes(image, p, label, j);
-      }*/
-    }
-  }
-  //countObjects(nobjects_hole, nobjects_WithoutHole);
+  countObjects(nobjects_hole, nobjects_WithoutHole);
+
   nobjects = labels-1;
 
 
