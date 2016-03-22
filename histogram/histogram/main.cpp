@@ -5,7 +5,6 @@
 using namespace cv;
 using namespace std;
 
-
 int transformation(int k, float ArrayOfData[], int L)
 {
     float sum = 0;
