@@ -5,21 +5,26 @@
 using namespace cv;
 using namespace std;
 
-int transformation(int A /*This A=(L-1)/MN*/, int Array_Ocurrrencies[], int k){
-    int sum;
-    for(int i=0; i<=k; i++){
-        sum = sum + Array_Ocurrrencies[i];
-    }
 
-    return sum;
+int transformation(int k, float ArrayOfData[], int L)
+{
+    float sum = 0;
+    k = k/4;
+    for(int i=0; i<=k; i++){
+        sum = sum + ArrayOfData[i];
+    }
+    return sum*(L-1);
 }
 
 void equalize_image (Mat image, int L){
 
-    int R[64]={}, G[64]={}, B[64]={}; //Each array will have the index as the Intensity and the value as the occurency
+    float R[64]={}, G[64]={}, B[64]={}; //Each array will have the index as the Intensity and the value as the occurency
     int height = image.size().height;
     int width = image.size().width;
-    Vec3b intensity; // This vector will be used to  store intensity values of the three channels
+    float sum=0.0;
+    float A = width*height;
+    Vec3b intensity;
+    float sumR = 0, sumG=0, sumB=0;
 
     //First, let's build the histogram array
 
@@ -35,19 +40,25 @@ void equalize_image (Mat image, int L){
         }
     }
 
-    //Second, apply the transformation in each pixel
+    //Now we put the Histogram array in a form of a Probability Density Funcion
+    for(int i=0; i<L; i++)
+    {
+        R[i] = R[i]/A;
+        G[i] = G[i]/A;
+        B[i] = B[i]/A;
+    }
 
-    float A = (float(L)-1.0)/(float(height*width));
 
+    int Blue, Green, Red;
     for(int i=0; i<height;i++)
     {
         for(int j=0; j<width; j++)
         {
             intensity = image.at<Vec3b>(i,j);
 
-            intensity.val[0] = transformation(A, B, intensity.val[0]);
-            intensity.val[1] = transformation(A, G, intensity.val[1]);
-            intensity.val[2] = transformation(A, R, intensity.val[2]);
+            intensity.val[0] = transformation(intensity.val[0], B, L)*4;
+            intensity.val[1] = transformation(intensity.val[1], G, L)*4;
+            intensity.val[2] = transformation(intensity.val[2], R, L)*4;
 
             image.at<Vec3b>(i,j) = intensity;
         }
